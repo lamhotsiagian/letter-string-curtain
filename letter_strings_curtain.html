@@ -1,0 +1,2116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Letter Strings — Cultural Code Curtain & Resonant Synthesizer</title>
+    <meta name="description" content="An interactive physics-based code curtain experience with Indonesian, Chinese, and Indian cultural textures and synthesized sound.">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Inter:wght@300;400;500;600&family=Fira+Code:wght@400;500&family=Noto+Sans+Javanese&family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ═══════════════════════════════════════════════════════
+           DESIGN SYSTEM — Cultural Theme Variables
+           ═══════════════════════════════════════════════════════ */
+        :root {
+            /* Shared warm palette */
+            --parchment-light: #f7f4eb;
+            --parchment-mid: #efeada;
+            --parchment-dark: #dfd8c2;
+            --ink-dark: #1f1a13;
+            --ink-mid: #4a3f31;
+            --ink-light: #7c705c;
+
+            /* Transition speed */
+            --theme-transition: 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* Indonesian (Batik) theme */
+        [data-theme="indonesian"] {
+            --accent-primary: #127a6c;
+            --accent-secondary: #b88632;
+            --accent-tertiary: #a63022;
+            --accent-glow: rgba(18, 122, 108, 0.25);
+            --accent-aura: rgba(184, 134, 50, 0.12);
+            --panel-glass: rgba(18, 122, 108, 0.04);
+            --panel-border: rgba(18, 122, 108, 0.12);
+            --string-base-r: 18; --string-base-g: 122; --string-base-b: 108;
+            --string-glow-r: 184; --string-glow-g: 134; --string-glow-b: 50;
+            --drone-hue: 165;
+        }
+
+        /* Chinese (Calligraphy) theme */
+        [data-theme="chinese"] {
+            --accent-primary: #af2b1e;
+            --accent-secondary: #c29113;
+            --accent-tertiary: #161616;
+            --accent-glow: rgba(175, 43, 30, 0.25);
+            --accent-aura: rgba(194, 145, 19, 0.12);
+            --panel-glass: rgba(175, 43, 30, 0.04);
+            --panel-border: rgba(175, 43, 30, 0.12);
+            --string-base-r: 175; --string-base-g: 43; --string-base-b: 30;
+            --string-glow-r: 194; --string-glow-g: 145; --string-glow-b: 19;
+            --drone-hue: 0;
+        }
+
+        /* Indian (Mandala) theme */
+        [data-theme="indian"] {
+            --accent-primary: #c44c00;
+            --accent-secondary: #7e3b9c;
+            --accent-tertiary: #0c5748;
+            --accent-glow: rgba(196, 76, 0, 0.25);
+            --accent-aura: rgba(126, 59, 156, 0.12);
+            --panel-glass: rgba(196, 76, 0, 0.04);
+            --panel-border: rgba(196, 76, 0, 0.12);
+            --string-base-r: 196; --string-base-g: 76; --string-base-b: 0;
+            --string-glow-r: 126; --string-glow-g: 59; --string-glow-b: 156;
+            --drone-hue: 30;
+        }
+
+        /* Mexican (Aztec) theme */
+        [data-theme="mexican"] {
+            --accent-primary: #a7390c;
+            --accent-secondary: #168a7b;
+            --accent-tertiary: #242424;
+            --accent-glow: rgba(167, 57, 12, 0.25);
+            --accent-aura: rgba(22, 138, 123, 0.12);
+            --panel-glass: rgba(167, 57, 12, 0.04);
+            --panel-border: rgba(167, 57, 12, 0.12);
+            --string-base-r: 167; --string-base-g: 57; --string-base-b: 12;
+            --string-glow-r: 22; --string-glow-g: 138; --string-glow-b: 123;
+            --drone-hue: 15;
+        }
+
+        /* ═══════════════════════════════════════════════════════
+           BASE STYLES
+           ═══════════════════════════════════════════════════════ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--parchment-light);
+            color: var(--ink-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px;
+            overflow-x: hidden;
+            position: relative;
+            transition: background var(--theme-transition);
+        }
+
+        /* Parchment grain texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            background-size: 256px 256px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Warm ambient glow spots */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -10%;
+            left: 20%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, var(--accent-aura) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            transition: background var(--theme-transition);
+            filter: blur(40px);
+        }
+
+        .serif-title { font-family: 'Cinzel', serif; font-weight: 500; }
+        .code-font { font-family: 'Fira Code', monospace; }
+
+        /* ═══════════════════════════════════════════════════════
+           SCROLLBAR
+           ═══════════════════════════════════════════════════════ */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.02); }
+        ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 999px; opacity: 0.25; }
+        ::-webkit-scrollbar-thumb:hover { opacity: 0.4; }
+
+        /* ═══════════════════════════════════════════════════════
+           GLASSMORPHISM PANELS (Warm tint)
+           ═══════════════════════════════════════════════════════ */
+        .glass-panel {
+            background: linear-gradient(135deg, rgba(247, 244, 235, 0.9), rgba(239, 234, 218, 0.8));
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--panel-border);
+            box-shadow:
+                0 10px 40px -10px rgba(0,0,0,0.04),
+                inset 0 1px 2px rgba(255,255,255,0.7);
+            transition: border-color var(--theme-transition), box-shadow 0.3s ease;
+        }
+
+        .glass-input {
+            background: rgba(255,255,255,0.5);
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 10px;
+            color: var(--ink-dark);
+            transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+            font-size: 0.8rem;
+            padding: 8px 12px;
+        }
+        .glass-input:focus {
+            background: rgba(255,255,255,0.85);
+            border-color: var(--accent-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .glass-input option {
+            background: var(--parchment-light);
+            color: var(--ink-dark);
+        }
+
+        /* ═══════════════════════════════════════════════════════
+           HEADER
+           ═══════════════════════════════════════════════════════ */
+        .site-header {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 10;
+            margin-bottom: 24px;
+            position: relative;
+        }
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .brand-mark h1 {
+            font-size: 2.2rem;
+            color: var(--ink-dark);
+            letter-spacing: 0.05em;
+            position: relative;
+            line-height: 1.1;
+        }
+        .brand-mark h1::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            border-radius: 99px;
+            background: var(--accent-primary);
+            transition: background var(--theme-transition), width 0.3s ease;
+        }
+        .brand-mark:hover h1::after {
+            width: 80px;
+        }
+        .brand-mark .subtitle {
+            font-size: 0.68rem;
+            color: var(--ink-light);
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        /* ═══════════════════════════════════════════════════════
+           CULTURAL THEME SELECTOR
+           ═══════════════════════════════════════════════════════ */
+        .theme-selector {
+            display: flex;
+            gap: 4px;
+            padding: 6px;
+            border-radius: 20px;
+            background: rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+        .theme-tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            border-radius: 14px;
+            border: 1px solid transparent;
+            background: transparent;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--ink-light);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+        }
+        .theme-tab:hover {
+            color: var(--ink-dark);
+            background: rgba(255,255,255,0.4);
+        }
+        .theme-tab.active {
+            color: var(--ink-dark);
+            background: #ffffff;
+            border-color: rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px -3px rgba(0,0,0,0.08);
+            font-weight: 600;
+            transform: scale(1.02);
+        }
+        .theme-tab .tab-icon {
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+        .theme-tab:hover .tab-icon {
+            transform: rotate(10deg) scale(1.1);
+        }
+        .theme-tab .tab-script {
+            font-size: 0.65rem;
+            opacity: 0.65;
+            margin-left: 2px;
+            font-weight: 400;
+        }
+
+        /* ═══════════════════════════════════════════════════════
+           AUDIO BUTTON
+           ═══════════════════════════════════════════════════════ */
+        .btn-audio {
+            padding: 10px 24px;
+            border-radius: 999px;
+            border: 1px solid var(--accent-primary);
+            background: linear-gradient(135deg, var(--accent-primary), color-mix(in srgb, var(--accent-primary), white 10%));
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.82rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 16px var(--accent-glow);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), background var(--theme-transition);
+        }
+        .btn-audio:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--accent-glow);
+        }
+        .btn-audio:active { transform: translateY(0) scale(0.97); }
+        .btn-audio.active {
+            background: linear-gradient(135deg, #1e824c, #2cc771);
+            border-color: #1e824c;
+            box-shadow: 0 4px 16px rgba(30, 130, 76, 0.35);
+        }
+
+        /* ═══════════════════════════════════════════════════════
+           MAIN LAYOUT
+           ═══════════════════════════════════════════════════════ */
+        .main-content {
+            width: 100%;
+            max-width: 1200px;
+            flex-grow: 1;
+            display: flex;
+            gap: 24px;
+            z-index: 10;
+            margin-bottom: 24px;
+            min-height: 450px;
+            height: calc(100vh - 280px);
+        }
+
+        /* Canvas frame */
+        .canvas-frame {
+            flex-grow: 1;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            min-height: 350px;
+        }
+        .canvas-frame .glass-panel {
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+        }
+        #physics-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+            z-index: 2;
+        }
+
+        /* Cultural pattern canvas (behind strings) */
+        #pattern-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.12;
+            transition: opacity 0.6s ease;
+        }
+
+        /* Corner cultural quote */
+        .culture-quote {
+            position: absolute;
+            bottom: 20px;
+            right: 24px;
+            z-index: 5;
+            text-align: right;
+            max-width: 280px;
+            pointer-events: none;
+        }
+        .culture-quote .quote-script {
+            font-size: 0.7rem;
+            color: var(--ink-light);
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+        .culture-quote .quote-text {
+            font-size: 0.85rem;
+            color: var(--ink-mid);
+            line-height: 1.5;
+            font-style: italic;
+        }
+
+        /* Gesture hint */
+        .gesture-hint {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(44, 36, 24, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 8px 18px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            color: var(--parchment-light);
+            pointer-events: none;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: opacity 0.5s ease;
+        }
+
+        /* ═══════════════════════════════════════════════════════
+           CONTROL DECK
+           ═══════════════════════════════════════════════════════ */
+        .control-deck {
+            width: 340px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .control-panel {
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .panel-section-title {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--ink-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .panel-section-title i {
+            color: var(--accent-primary);
+            font-size: 1rem;
+            transition: color var(--theme-transition);
+        }
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.72rem;
+            color: var(--ink-light);
+            font-weight: 500;
+        }
+        .slider-value {
+            color: var(--accent-primary);
+            font-weight: 600;
+            font-size: 0.75rem;
+            transition: color var(--theme-transition);
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 5px;
+            border-radius: 99px;
+            background: rgba(0, 0, 0, 0.06);
+            outline: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            border: 3px solid #ffffff;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: background var(--theme-transition), transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            border: 3px solid #ffffff;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: background var(--theme-transition), transform 0.2s ease;
+        }
+        input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        /* Action buttons */
+        .btn-action {
+            flex: 1;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.05);
+            background: rgba(255,255,255,0.6);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--ink-mid);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .btn-action:hover {
+            background: #ffffff;
+            border-color: var(--panel-border);
+            color: var(--ink-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+        .btn-action:active { transform: translateY(0) scale(0.98); }
+        .btn-action.danger {
+            color: #af2b1e;
+            border-color: rgba(175, 43, 30, 0.1);
+        }
+        .btn-action.danger:hover {
+            background: rgba(175, 43, 30, 0.05);
+            border-color: rgba(175, 43, 30, 0.2);
+        }
+
+        /* ═══════════════════════════════════════════════════════
+           FOOTER
+           ═══════════════════════════════════════════════════════ */
+        .site-footer {
+            width: 100%;
+            max-width: 1200px;
+            border-radius: 16px;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.7rem;
+            color: var(--ink-light);
+            z-index: 10;
+        }
+        .footer-metrics {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #27ae60;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ═══════════════════════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════════════════════ */
+        @media (max-width: 1024px) {
+            .main-content {
+                flex-direction: column;
+                height: auto;
+            }
+            .control-deck {
+                width: 100%;
+            }
+            .canvas-frame {
+                min-height: 400px;
+                height: 50vh;
+            }
+        }
+        @media (max-width: 640px) {
+            .theme-selector {
+                flex-wrap: wrap;
+            }
+            .theme-tab {
+                padding: 8px 14px;
+                font-size: 0.72rem;
+            }
+            .brand-mark h1 {
+                font-size: 1.5rem;
+            }
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════
+           ANIMATIONS
+           ═══════════════════════════════════════════════════════ */
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeSlideIn 0.6s ease forwards; }
+
+        /* Cultural motif indicator dot */
+        .culture-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            transition: background var(--theme-transition);
+        }
+    </style>
+</head>
+
+<body data-theme="indonesian">
+
+    <!-- ═══════ HEADER ═══════ -->
+    <header class="site-header">
+        <div class="header-top">
+            <div class="brand-mark">
+                <h1 class="serif-title">Letter Strings</h1>
+                <p class="subtitle code-font">Cultural Code Fabric & Resonant Synthesizer</p>
+            </div>
+
+            <button id="btn-audio-init" class="btn-audio" aria-label="Activate audio engine">
+                <i id="audio-icon" class="fa-solid fa-volume-xmark"></i>
+                <span id="audio-status-text">Activate Audio</span>
+            </button>
+        </div>
+
+        <!-- Cultural Theme Tabs -->
+        <div class="theme-selector" id="theme-selector">
+            <button class="theme-tab active" data-theme="indonesian" aria-label="Indonesian Batik theme">
+                <span class="tab-icon">🏛️</span>
+                <span>Indonesia</span>
+                <span class="tab-script">ꦧꦠꦶꦏ꧀</span>
+            </button>
+            <button class="theme-tab" data-theme="chinese" aria-label="Chinese Calligraphy theme">
+                <span class="tab-icon">🏯</span>
+                <span>China</span>
+                <span class="tab-script">書法</span>
+            </button>
+            <button class="theme-tab" data-theme="indian" aria-label="Indian Mandala theme">
+                <span class="tab-icon">🕌</span>
+                <span>India</span>
+                <span class="tab-script">मण्डल</span>
+            </button>
+            <button class="theme-tab" data-theme="mexican" aria-label="Mexican Aztec theme">
+                <span class="tab-icon">🏺</span>
+                <span>México</span>
+                <span class="tab-script">Nahuatl</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ═══════ MAIN CONTENT ═══════ -->
+    <main class="main-content">
+        <!-- Canvas Frame -->
+        <div class="canvas-frame">
+            <div class="glass-panel"></div>
+            <canvas id="pattern-canvas"></canvas>
+            <canvas id="physics-canvas"></canvas>
+
+            <!-- Cultural Quote -->
+            <div class="culture-quote" id="culture-quote">
+                <p class="quote-script" id="quote-script">ꦲꦤ꧀ꦢꦥ꧀ꦏꦸꦮꦶ ꦏꦸꦮꦶ</p>
+                <p class="quote-text" id="quote-text">Touch the strings and hear the voice of ancient craft.</p>
+            </div>
+
+            <!-- Gesture Hint -->
+            <div class="gesture-hint" id="gesture-hint">
+                <i class="fa-solid fa-hand-pointer" style="animation: pulse 1.5s infinite"></i>
+                Swipe across to weave the strands and release resonance
+            </div>
+        </div>
+
+        <!-- Control Deck -->
+        <div class="control-deck">
+            <div class="control-panel glass-panel">
+                <!-- Physics Section -->
+                <div>
+                    <h2 class="panel-section-title">
+                        <i class="fa-solid fa-sliders"></i> Physics Engine
+                    </h2>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Gravity Pull</span>
+                            <span id="val-gravity" class="slider-value code-font">0.25</span>
+                        </div>
+                        <input id="slide-gravity" type="range" min="0" max="1" step="0.05" value="0.25">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Elastic Tension</span>
+                            <span id="val-tension" class="slider-value code-font">0.85</span>
+                        </div>
+                        <input id="slide-tension" type="range" min="0.1" max="1" step="0.05" value="0.85">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Viscous Drag</span>
+                            <span id="val-drag" class="slider-value code-font">0.97</span>
+                        </div>
+                        <input id="slide-drag" type="range" min="0.85" max="1" step="0.01" value="0.97">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Cursor Push</span>
+                            <span id="val-wind" class="slider-value code-font">12</span>
+                        </div>
+                        <input id="slide-wind" type="range" min="2" max="30" step="1" value="12">
+                    </div>
+                </div>
+
+                <!-- Audio Section -->
+                <div>
+                    <h2 class="panel-section-title">
+                        <i class="fa-solid fa-music"></i> Synthesizer
+                    </h2>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Master Gain</span>
+                            <span id="val-volume" class="slider-value code-font">30%</span>
+                        </div>
+                        <input id="slide-volume" type="range" min="0" max="1" step="0.05" value="0.3">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Resonance Cutoff</span>
+                            <span id="val-cutoff" class="slider-value code-font">1200 Hz</span>
+                        </div>
+                        <input id="slide-cutoff" type="range" min="200" max="4000" step="50" value="1200">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>FM Depth</span>
+                            <span id="val-fmdepth" class="slider-value code-font">15</span>
+                        </div>
+                        <input id="slide-fmdepth" type="range" min="0" max="100" step="1" value="15">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Reverb Mix</span>
+                            <span id="val-reverb" class="slider-value code-font">55%</span>
+                        </div>
+                        <input id="slide-reverb" type="range" min="0" max="1" step="0.05" value="0.55">
+                    </div>
+                </div>
+
+                <!-- Text Source -->
+                <div>
+                    <h2 class="panel-section-title">
+                        <i class="fa-solid fa-language"></i> Script Source
+                    </h2>
+                    <select id="select-text-source" class="glass-input" style="width:100%; padding: 8px 12px; border-radius: 12px; font-size: 0.75rem; cursor: pointer;">
+                        <option value="cultural">Cultural Script (Auto)</option>
+                        <option value="code">Source Code</option>
+                        <option value="custom">Custom Input</option>
+                    </select>
+
+                    <div id="custom-text-wrap" style="display:none; margin-top: 10px;">
+                        <textarea id="custom-text-input" placeholder="Type or paste text..."
+                            class="glass-input" style="width:100%; height: 80px; padding: 10px; border-radius: 12px; font-size: 0.72rem; resize: none; font-family: 'Fira Code', monospace;"></textarea>
+                        <button id="btn-apply-custom" class="btn-action" style="width:100%; margin-top: 8px;">
+                            <i class="fa-solid fa-arrows-rotate"></i> Re-weave
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 8px; margin-top: auto; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.04);">
+                    <button id="btn-reset" class="btn-action danger">
+                        <i class="fa-solid fa-trash-can"></i> Clear
+                    </button>
+                    <button id="btn-stabilize" class="btn-action">
+                        <i class="fa-solid fa-anchor"></i> Align
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ═══════ FOOTER ═══════ -->
+    <footer class="site-footer glass-panel">
+        <div class="footer-metrics">
+            <span style="display:flex; align-items:center; gap:6px;">
+                <span class="status-dot"></span> Engine Active
+            </span>
+            <span class="code-font">
+                <i class="fa-solid fa-wave-square" style="color: var(--accent-primary)"></i>
+                FPS: <strong id="metric-fps">60</strong>
+            </span>
+            <span class="code-font">
+                <i class="fa-solid fa-bezier-curve" style="color: var(--accent-secondary)"></i>
+                Nodes: <strong id="metric-nodes">0</strong>
+            </span>
+        </div>
+        <div style="display:flex; align-items:center; gap: 12px;">
+            <span class="culture-dot"></span>
+            <span class="code-font" style="font-size: 0.65rem;">© 2026 Letter Strings</span>
+        </div>
+    </footer>
+
+    <!-- ═══════════════════════════════════════════════════════
+         JAVASCRIPT ENGINE
+         ═══════════════════════════════════════════════════════ -->
+    <script>
+    (function() {
+        'use strict';
+
+        // ─────────────────────────────────────────────────────
+        //  CULTURAL THEME DEFINITIONS
+        // ─────────────────────────────────────────────────────
+        const CULTURAL_THEMES = {
+            indonesian: {
+                name: 'Indonesian',
+                // Javanese script proverbs & Batik wisdom
+                texts: [
+                    "ꦲꦗꦶꦤꦶꦁ ꦱꦫꦶꦫ ꦲꦶꦏꦸ ꦲꦤ꧀ꦢꦥ꧀ ꦏꦸꦮꦶ",
+                    "ꦧꦼꦕꦶꦏ꧀ ꦏꦼꦠꦶꦠꦶꦏ꧀ ꦲꦭ ꦲꦏꦼ",
+                    "ꦱꦸꦮꦸꦁ ꦱꦸꦮꦸꦁ ꦲꦃ ꦮꦺꦱ꧀ ꦲꦭꦸꦱ꧀",
+                    "ꦥꦿꦥ꧀ꦠꦤ꧀ ꦲꦶꦏꦸ ꦭꦤ꧀ꦢꦼꦥ꧀ꦲꦤ꧀ꦏꦁ",
+                    "ꦏꦸꦮꦶ ꦢꦢꦶ ꦱꦫꦶꦫ ꦭꦸꦮꦶꦃ ꦲꦸꦠꦩ",
+                    "ꦠꦸꦫꦸꦠ꧀ ꦧꦼꦕꦶꦏ꧀ ꦲꦩꦿꦶꦃ ꦧꦸꦢꦶ",
+                    "ꦱꦠꦸ ꦲꦶꦁꦏꦁ ꦮꦺꦤꦁ ꦧꦸꦢꦪ",
+                    "ꦫꦶꦤ꧀ꦢꦸ ꦲꦶꦏꦸ ꦭꦤ꧀ꦢꦼꦥ꧀ꦲꦤ꧀ꦢꦁ",
+                ],
+                quoteScript: "ꦲꦤ꧀ꦢꦥ꧀ ꦏꦸꦮꦶ ꦏꦸꦮꦶ",
+                quoteText: "Touch the batik threads — where every motif holds ancestral memory.",
+                font: '"Noto Sans Javanese", serif',
+                // Gundul Pacul (Famous Central Javanese Gamelan Song)
+                scale: [
+                    261.63, 329.63, 261.63, 329.63, 349.23, 392.00, 392.00, // Gun-dul gun-dul pa-cul-cul
+                    493.88, 523.25, 493.88, 392.00, 349.23, 392.00, 349.23, 329.63, 261.63 // glem-bel-en...
+                ],
+                // Gamelan bonang/saron — inharmonic metallic bell tone
+                // FM ratio √2 ≈ 1.414 produces characteristic inharmonic gamelan shimmer
+                fmRatio: 1.414,
+                fmDecay: 0.3,
+                attackTime: 0.008,
+                releaseTime: 4.0,
+                oscType: 'sine',
+                // Detuned pair — gamelan instruments are tuned in slightly-off pairs (ombak)
+                detuneCents: 6,
+                // Vibrato: none for gamelan (it's the beating that creates shimmer)
+                vibratoRate: 0,
+                vibratoDepth: 0,
+                // Drone: deep gong ageng cycle — low resonant hum
+                droneFreqs: [36.75, 73.50, 147.00],
+                droneType: 'sine',
+                droneGain: 0.018,
+                // Canvas pattern colors
+                patternColor: 'rgba(26, 138, 122, 0.6)',
+                patternAccent: 'rgba(200, 150, 62, 0.4)',
+                // String rendering
+                stringBaseColor: [26, 138, 122],
+                stringGlowColor: [200, 150, 62],
+                auraColor: 'rgba(26, 138, 122, ##)',
+                canvasBg: [245, 239, 224],
+            },
+            chinese: {
+                name: 'Chinese',
+                // Tang dynasty poetry excerpts (李白, 杜甫, 王維)
+                texts: [
+                    "床前明月光疑是地上霜",
+                    "舉頭望明月低頭思故鄉",
+                    "白日依山盡黃河入海流",
+                    "欲窮千里目更上一層樓",
+                    "春眠不覺曉處處聞啼鳥",
+                    "夜來風雨聲花落知多少",
+                    "空山不見人但聞人語響",
+                    "返景入深林復照青苔上",
+                    "獨坐幽篁裏彈琴復長嘯",
+                    "深林人不知明月來相照",
+                    "千山鳥飛絕萬徑人蹤滅",
+                    "孤舟蓑笠翁獨釣寒江雪",
+                ],
+                quoteScript: "靜夜思 · 李白",
+                quoteText: "Moonlight before the bed, frost upon the ground — ancient verses drift through silk strings.",
+                font: '"Noto Serif SC", serif',
+                // Mo Li Hua / Jasmine Flower (茉莉花 - Famous Chinese Folk Song)
+                scale: [
+                    329.63, 329.63, 392.00, 440.00, 523.25, 523.25, 440.00, 392.00, // Mi mi sol la do' do' la sol
+                    392.00, 440.00, 392.00, 329.63, 392.00, 440.00, 392.00, 329.63, // sol la sol mi sol la sol mi
+                    293.66, 329.63, 293.66, 261.63 // re mi re do
+                ],
+                // Guzheng 古箏 — pure crystalline plucked silk strings
+                // Very low FM for clean harmonic tone, triangle for soft overtones
+                fmRatio: 1.0,
+                fmDecay: 0.1,
+                attackTime: 0.005,
+                releaseTime: 3.5,
+                oscType: 'triangle',
+                // No detuning — guzheng is precisely tuned
+                detuneCents: 0,
+                // Gentle vibrato — characteristic guzheng left-hand yín (吟) ornament
+                vibratoRate: 5.5,
+                vibratoDepth: 3,
+                // Drone: guqin-like open string resonance, deep fifth
+                droneFreqs: [32.70, 49.00, 65.41],
+                droneType: 'triangle',
+                droneGain: 0.012,
+                patternColor: 'rgba(192, 57, 43, 0.5)',
+                patternAccent: 'rgba(212, 160, 23, 0.4)',
+                stringBaseColor: [192, 57, 43],
+                stringGlowColor: [212, 160, 23],
+                auraColor: 'rgba(192, 57, 43, ##)',
+                canvasBg: [245, 239, 224],
+            },
+            indian: {
+                name: 'Indian',
+                // Sanskrit slokas in Devanagari
+                texts: [
+                    "असतो मा सद्गमय तमसो मा ज्योतिर्गमय",
+                    "ॐ भूर्भुवः स्वः तत्सवितुर्वरेण्यं",
+                    "भर्गो देवस्य धीमहि धियो यो नः प्रचोदयात्",
+                    "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन",
+                    "योगस्थः कुरु कर्माणि सङ्गं त्यक्त्वा धनञ्जय",
+                    "सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज",
+                    "अहं त्वा सर्वपापेभ्यो मोक्षयिष्यामि मा शुचः",
+                    "वसुधैव कुटुम्बकम् सत्यमेव जयते",
+                    "सर्वे भवन्तु सुखिनः सर्वे सन्तु निरामयाः",
+                    "ॐ शान्तिः शान्तिः शान्तिः",
+                ],
+                quoteScript: "गायत्री मन्त्र · ऋग्वेद",
+                quoteText: "The strings vibrate with raga — each touch a meditation, each sway a breath of the ancient.",
+                font: '"Noto Sans Devanagari", sans-serif',
+                // Raghupati Raghav Raja Ram (रघुपति राघव राजा राम - Meditative Bhajan)
+                scale: [
+                    261.63, 293.66, 329.63, 261.63, 329.63, 329.63, 293.66, 261.63, 293.66, // Ra-ghu-pa-ti ra-gha-va ra-ja ram
+                    329.63, 392.00, 369.99, 392.00, 369.99, 329.63, 293.66, 329.63 // pa-ti-ta pa-va-na si-ta ram
+                ],
+                // Sitar — characteristic jawari buzz from high FM ratio
+                // FM ratio 7.0 creates the metallic-buzzing sympathetic string sound
+                fmRatio: 7.0,
+                fmDecay: 0.5,
+                attackTime: 0.003,
+                releaseTime: 5.0,
+                oscType: 'sine',
+                // No detuning — sitar is precisely tuned to raga
+                detuneCents: 0,
+                // Slow meend-like vibrato — characteristic of sitar slides
+                vibratoRate: 3.0,
+                vibratoDepth: 5,
+                // Drone: tanpura — Sa-Pa-Sa-Sa' (the soul of Indian classical music)
+                // Tanpura uses a rich buzzing tone, not pure sine
+                droneFreqs: [65.41, 98.00, 130.81, 130.81],
+                droneType: 'sawtooth',
+                droneGain: 0.025,
+                patternColor: 'rgba(211, 84, 0, 0.5)',
+                patternAccent: 'rgba(142, 68, 173, 0.4)',
+                stringBaseColor: [211, 84, 0],
+                stringGlowColor: [142, 68, 173],
+                auraColor: 'rgba(211, 84, 0, ##)',
+                canvasBg: [245, 239, 224],
+            },
+            mexican: {
+                name: 'Mexican',
+                // Nahuatl proverbs & Aztec wisdom
+                texts: [
+                    "In tlilli in tlapalli neltiliztli ipan cemanahuac",
+                    "Amo ximocueso ipampa in tonalli opoliuh",
+                    "Xicmati in monemiliz ihuan xictlepanitaz",
+                    "In xochitl in cuicatl inic tlanextia toyollo",
+                    "Nican tlaca tinemih ipan cemanahuac tlalli",
+                    "Zan achitzinca ye nican tontlacemanahuac",
+                    "Auh in oc yolque ye nican in tlalticpac cah",
+                    "Ma nel xochitl ma nel cuicatl ic timiquican",
+                    "Ipalnemohuani in totecuiyo in tloque nahuaque",
+                    "Cemanahuac moyocoyani huel nelli teotl ichan",
+                ],
+                quoteScript: "In Xōchitl In Cuīcatl · Nezahualcóyotl",
+                quoteText: "Flower and song — the Aztec path to truth, where poetry and art reveal the divine.",
+                font: '"Inter", sans-serif',
+                // Cielito Lindo (Famous Mexican Folk Song - Chorus)
+                scale: [
+                    523.25, 523.25, 440.00, 493.88, 392.00, // Ay, ay, ay, ay...
+                    523.25, 523.25, 440.00, 493.88, 392.00, // Ay, ay, ay, ay...
+                    493.88, 493.88, 493.88, 493.88, 440.00, 392.00, 349.23, 293.66, 329.63, 349.23, 392.00, 261.63 // can-ta y no llo-res...
+                ],
+                // Guitarrón / vihuela — warm plucked string with mild harmonics
+                // Square wave for the rich, slightly buzzy guitarrón tone
+                fmRatio: 2.0,
+                fmDecay: 0.3,
+                attackTime: 0.008,
+                releaseTime: 2.0,
+                oscType: 'square',
+                // No detuning
+                detuneCents: 0,
+                // Quick vibrato — characteristic of mariachi violin/trumpet
+                vibratoRate: 6.0,
+                vibratoDepth: 4,
+                // Drone: guitarrón bass — warm low pulse
+                droneFreqs: [36.71, 55.00, 73.42],
+                droneType: 'triangle',
+                droneGain: 0.018,
+                patternColor: 'rgba(183, 65, 14, 0.5)',
+                patternAccent: 'rgba(26, 153, 136, 0.4)',
+                stringBaseColor: [183, 65, 14],
+                stringGlowColor: [26, 153, 136],
+                auraColor: 'rgba(183, 65, 14, ##)',
+                canvasBg: [245, 239, 224],
+            }
+        };
+
+        const CODE_PRESET = `function updatePhysics() {
+  const gravity = 0.25;
+  const friction = 0.98;
+  particles.forEach(p => {
+    if (p.pinned) return;
+    let vx = (p.x - p.oldX) * friction;
+    let vy = (p.y - p.oldY) * friction;
+    p.oldX = p.x;
+    p.oldY = p.y;
+    p.x += vx;
+    p.y += vy + gravity;
+    if (mouse.down) {
+      let dx = p.x - mouse.x;
+      let dy = p.y - mouse.y;
+      let dist = Math.hypot(dx, dy);
+    }
+  });
+}`;
+
+        // ─────────────────────────────────────────────────────
+        //  GLOBAL STATE
+        // ─────────────────────────────────────────────────────
+        let currentTheme = 'indonesian';
+        let state = {
+            gravity: 0.25,
+            tension: 0.85,
+            drag: 0.97,
+            windStrength: 12,
+            masterVolume: 0.3,
+            cutoff: 1200,
+            fmDepth: 15,
+            reverbMix: 0.55,
+            textSource: 'cultural',
+            customText: ''
+        };
+
+        // ─────────────────────────────────────────────────────
+        //  DOM REFERENCES
+        // ─────────────────────────────────────────────────────
+        const physicsCanvas = document.getElementById('physics-canvas');
+        const patternCanvas = document.getElementById('pattern-canvas');
+        const ctx = physicsCanvas.getContext('2d');
+        const patCtx = patternCanvas.getContext('2d');
+        const btnAudioInit = document.getElementById('btn-audio-init');
+        const audioIcon = document.getElementById('audio-icon');
+        const audioStatusText = document.getElementById('audio-status-text');
+        const metricFps = document.getElementById('metric-fps');
+        const metricNodes = document.getElementById('metric-nodes');
+        const gestureHint = document.getElementById('gesture-hint');
+
+        // ─────────────────────────────────────────────────────
+        //  AUDIO ENGINE
+        // ─────────────────────────────────────────────────────
+        let audioCtx = null;
+        let masterGainNode = null;
+        let steamNoise = null;
+        let steamFilter = null;
+        let steamGain = null;
+        let chimingVoices = [];
+        let reverbNode = null;
+        let dryGain = null;
+        let wetGain = null;
+        let droneOscs = [];
+        let droneGainNode = null;
+
+        function createImpulseResponse(duration, decay) {
+            const length = audioCtx.sampleRate * duration;
+            const impulse = audioCtx.createBuffer(2, length, audioCtx.sampleRate);
+            for (let ch = 0; ch < 2; ch++) {
+                const data = impulse.getChannelData(ch);
+                for (let i = 0; i < length; i++) {
+                    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
+                }
+            }
+            return impulse;
+        }
+
+        function initAudio() {
+            if (audioCtx) return;
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+                // Master Gain
+                masterGainNode = audioCtx.createGain();
+                masterGainNode.gain.setValueAtTime(state.masterVolume, audioCtx.currentTime);
+                masterGainNode.connect(audioCtx.destination);
+
+                // Reverb (Convolution)
+                reverbNode = audioCtx.createConvolver();
+                reverbNode.buffer = createImpulseResponse(3.0, 2.5);
+
+                // Dry/Wet mix
+                dryGain = audioCtx.createGain();
+                wetGain = audioCtx.createGain();
+                dryGain.gain.setValueAtTime(1 - state.reverbMix, audioCtx.currentTime);
+                wetGain.gain.setValueAtTime(state.reverbMix, audioCtx.currentTime);
+
+                dryGain.connect(masterGainNode);
+                wetGain.connect(reverbNode);
+                reverbNode.connect(masterGainNode);
+
+                // Steam Noise Generator
+                const bufferSize = audioCtx.sampleRate * 2;
+                const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const output = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+
+                steamNoise = audioCtx.createBufferSource();
+                steamNoise.buffer = noiseBuffer;
+                steamNoise.loop = true;
+
+                steamFilter = audioCtx.createBiquadFilter();
+                steamFilter.type = 'bandpass';
+                steamFilter.frequency.setValueAtTime(state.cutoff, audioCtx.currentTime);
+                steamFilter.Q.setValueAtTime(1.5, audioCtx.currentTime);
+
+                steamGain = audioCtx.createGain();
+                steamGain.gain.setValueAtTime(0, audioCtx.currentTime);
+
+                steamNoise.connect(steamFilter);
+                steamFilter.connect(steamGain);
+                steamGain.connect(dryGain);
+                steamGain.connect(wetGain);
+                steamNoise.start();
+
+                // Cultural Drone
+                setupDrone();
+
+                // Chime Voices
+                setupChimeVoices();
+
+                // UI Update
+                btnAudioInit.classList.add('active');
+                audioIcon.className = "fa-solid fa-volume-high";
+                audioStatusText.textContent = "Audio Active";
+
+                setTimeout(() => { gestureHint.style.opacity = '0'; }, 2500);
+
+            } catch (err) {
+                console.error("Audio init failed:", err);
+            }
+        }
+
+        function setupDrone() {
+            if (!audioCtx) return;
+
+            // Kill existing drone
+            droneOscs.forEach(o => { try { o.stop(); } catch(e) {} });
+            droneOscs = [];
+
+            if (droneGainNode) { droneGainNode.disconnect(); }
+            droneGainNode = audioCtx.createGain();
+            const theme = CULTURAL_THEMES[currentTheme];
+            droneGainNode.gain.setValueAtTime(theme.droneGain, audioCtx.currentTime);
+            droneGainNode.connect(dryGain);
+            droneGainNode.connect(wetGain);
+
+            // Use a lowpass filter on the drone for warmth
+            const droneFilter = audioCtx.createBiquadFilter();
+            droneFilter.type = 'lowpass';
+            droneFilter.frequency.setValueAtTime(400, audioCtx.currentTime);
+            droneFilter.Q.setValueAtTime(0.7, audioCtx.currentTime);
+            droneFilter.connect(droneGainNode);
+
+            theme.droneFreqs.forEach((freq, idx) => {
+                const osc = audioCtx.createOscillator();
+                // Use culture-specific drone waveform
+                const droneType = theme.droneType || 'sine';
+                // For sawtooth (tanpura), filter will tame the harmonics into warmth
+                osc.type = droneType;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                osc.connect(droneFilter);
+                osc.start();
+                droneOscs.push(osc);
+
+                // For Indian tanpura: add slow frequency wobble to simulate jawari buzz
+                if (currentTheme === 'indian') {
+                    const lfo = audioCtx.createOscillator();
+                    const lfoGain = audioCtx.createGain();
+                    lfo.type = 'sine';
+                    lfo.frequency.setValueAtTime(1.2 + idx * 0.3, audioCtx.currentTime);
+                    lfoGain.gain.setValueAtTime(1.5, audioCtx.currentTime);
+                    lfo.connect(lfoGain);
+                    lfoGain.connect(osc.frequency);
+                    lfo.start();
+                    droneOscs.push(lfo);
+                }
+            });
+        }
+
+        function setupChimeVoices() {
+            if (!audioCtx) return;
+
+            // Stop existing
+            chimingVoices.forEach(v => {
+                try { v.carrier.stop(); v.modulator.stop(); } catch(e) {}
+                if (v.vibratoLfo) try { v.vibratoLfo.stop(); } catch(e) {}
+                if (v.detuneOsc) try { v.detuneOsc.stop(); } catch(e) {}
+            });
+            chimingVoices = [];
+
+            const theme = CULTURAL_THEMES[currentTheme];
+            const numStrands = strands.length;
+
+            for (let i = 0; i < numStrands; i++) {
+                // FM Synthesis: carrier + modulator
+                const carrier = audioCtx.createOscillator();
+                const modulator = audioCtx.createOscillator();
+                const modGain = audioCtx.createGain();
+                const voiceGain = audioCtx.createGain();
+
+                const pitchIndex = i % theme.scale.length;
+                const baseFreq = theme.scale[pitchIndex];
+
+                carrier.type = theme.oscType;
+                carrier.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
+
+                modulator.type = 'sine';
+                modulator.frequency.setValueAtTime(baseFreq * theme.fmRatio, audioCtx.currentTime);
+                modGain.gain.setValueAtTime(state.fmDepth, audioCtx.currentTime);
+
+                voiceGain.gain.setValueAtTime(0, audioCtx.currentTime);
+
+                // FM routing: modulator -> modGain -> carrier.frequency
+                modulator.connect(modGain);
+                modGain.connect(carrier.frequency);
+
+                // Per-voice lowpass filter for warmth
+                const voiceFilter = audioCtx.createBiquadFilter();
+                voiceFilter.type = 'lowpass';
+                voiceFilter.frequency.setValueAtTime(1800, audioCtx.currentTime);
+                voiceFilter.Q.setValueAtTime(0.5, audioCtx.currentTime);
+
+                // Carrier -> filter -> voice gain -> dry/wet
+                carrier.connect(voiceFilter);
+                voiceFilter.connect(voiceGain);
+                voiceGain.connect(dryGain);
+                voiceGain.connect(wetGain);
+
+                carrier.start();
+                modulator.start();
+
+                let vibratoLfo = null;
+                let detuneOsc = null;
+
+                // Culture-specific: vibrato LFO
+                if (theme.vibratoRate && theme.vibratoRate > 0) {
+                    vibratoLfo = audioCtx.createOscillator();
+                    const vibratoGain = audioCtx.createGain();
+                    vibratoLfo.type = 'sine';
+                    vibratoLfo.frequency.setValueAtTime(theme.vibratoRate, audioCtx.currentTime);
+                    vibratoGain.gain.setValueAtTime(theme.vibratoDepth || 2, audioCtx.currentTime);
+                    vibratoLfo.connect(vibratoGain);
+                    vibratoGain.connect(carrier.frequency);
+                    vibratoLfo.start();
+                }
+
+                // Culture-specific: detuned pair (gamelan ombak beating)
+                if (theme.detuneCents && theme.detuneCents > 0) {
+                    detuneOsc = audioCtx.createOscillator();
+                    detuneOsc.type = theme.oscType;
+                    // Detune creates the characteristic gamelan 'ombak' shimmering beat
+                    detuneOsc.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
+                    detuneOsc.detune.setValueAtTime(theme.detuneCents, audioCtx.currentTime);
+                    detuneOsc.connect(voiceFilter);
+                    detuneOsc.start();
+                }
+
+                chimingVoices.push({
+                    carrier,
+                    modulator,
+                    modGain,
+                    gainNode: voiceGain,
+                    currentVol: 0,
+                    baseFreq,
+                    vibratoLfo,
+                    detuneOsc
+                });
+            }
+        }
+
+        function updateAudioDynamics() {
+            if (!audioCtx) return;
+            const theme = CULTURAL_THEMES[currentTheme];
+            let totalActivity = 0;
+
+            strands.forEach((strand, index) => {
+                if (index >= chimingVoices.length) return;
+
+                let displacement = 0;
+                strand.particles.forEach(p => {
+                    displacement += Math.hypot(p.x - p.oldX, p.y - p.oldY);
+                });
+                displacement /= strand.particles.length;
+
+                // Gentle voice activation — high threshold, soft scaling
+                let voiceActivity = Math.max(0, displacement - 0.25) * 0.08;
+                let targetGain = Math.min(voiceActivity, 0.06);
+
+                const voice = chimingVoices[index];
+                // Very slow interpolation for smooth, calm transitions
+                voice.currentVol = voice.currentVol * 0.92 + targetGain * 0.08;
+                voice.gainNode.gain.setTargetAtTime(voice.currentVol, audioCtx.currentTime, 0.15);
+
+                // Gentle FM modulation — subtle shimmer, not aggressive
+                const dynamicFM = state.fmDepth + displacement * 8;
+                voice.modGain.gain.setTargetAtTime(dynamicFM, audioCtx.currentTime, 0.2);
+
+                totalActivity += voice.currentVol;
+            });
+
+            // Steam ambient — very quiet breeze
+            const steamVol = Math.min(totalActivity * 0.3, 0.12);
+            steamGain.gain.setTargetAtTime(steamVol, audioCtx.currentTime, 0.25);
+
+            const sweepHz = state.cutoff + (steamVol * 600);
+            steamFilter.frequency.setTargetAtTime(sweepHz, audioCtx.currentTime, 0.3);
+        }
+
+        // ─────────────────────────────────────────────────────
+        //  PHYSICS ENGINE
+        // ─────────────────────────────────────────────────────
+        let particles = [];
+        let constraints = [];
+        let strands = [];
+
+        class Particle {
+            constructor(x, y, char = ' ') {
+                this.x = x; this.y = y;
+                this.oldX = x; this.oldY = y;
+                this.pinned = false;
+                this.char = char;
+                this.brightness = 0.3;
+            }
+        }
+
+        class Constraint {
+            constructor(p1, p2, len) {
+                this.p1 = p1; this.p2 = p2; this.len = len;
+            }
+        }
+
+        const mouse = {
+            x: -1000, y: -1000,
+            prevX: -1000, prevY: -1000,
+            down: false, radius: 85,
+            velX: 0, velY: 0
+        };
+
+        function getTextForCurtain() {
+            if (state.textSource === 'custom' && state.customText) {
+                return multiplyLines(state.customText.split('\n').filter(l => l.trim().length > 0));
+            }
+            if (state.textSource === 'code') {
+                return multiplyLines(CODE_PRESET.split('\n').filter(l => l.trim().length > 0));
+            }
+            // Cultural text — multiply to fill the canvas densely
+            return multiplyLines(CULTURAL_THEMES[currentTheme].texts);
+        }
+
+        // Repeat text lines to create dense curtain strands that fill the canvas width
+        // Also normalize all strings to the same tall length
+        function multiplyLines(lines) {
+            if (lines.length === 0) return lines;
+            // Calculate how many strands we can fit tightly
+            const targetCount = Math.max(30, Math.floor((physicsCanvas.width - 20) / 14));
+
+            // Find the longest string (in characters) to normalize height
+            let maxLen = 0;
+            lines.forEach(l => { const len = [...l].length; if (len > maxLen) maxLen = len; });
+            // Ensure a tall minimum — at least fill most of the canvas
+            const minTallLen = Math.max(maxLen, Math.floor((physicsCanvas.height - 30) / 11));
+
+            const result = [];
+            for (let i = 0; i < targetCount; i++) {
+                const srcLine = lines[i % lines.length];
+                const chars = [...srcLine];
+                // Shift start position for visual variety
+                const offset = (i * 3) % chars.length;
+                const shifted = [...chars.slice(offset), ...chars.slice(0, offset)];
+                // Extend to uniform tall length by repeating characters
+                while (shifted.length < minTallLen) {
+                    const extraOffset = shifted.length % chars.length;
+                    shifted.push(chars[extraOffset]);
+                }
+                result.push(shifted.join(''));
+            }
+            return result;
+        }
+
+        function buildCodeCurtain() {
+            particles = [];
+            constraints = [];
+            strands = [];
+
+            const lines = getTextForCurtain();
+            if (lines.length === 0) return;
+
+            // Dense curtain: tight horizontal spacing, small vertical gap
+            const spacingX = Math.max(12, Math.floor((physicsCanvas.width - 20) / lines.length));
+            const charSpacingY = 11;
+
+            lines.forEach((line, strandIndex) => {
+                const strandX = 30 + (strandIndex * spacingX);
+                const strandParticles = [];
+                const chars = [...line]; // Properly handle multi-byte characters
+
+                for (let j = 0; j < chars.length; j++) {
+                    const p = new Particle(strandX, 15 + j * charSpacingY, chars[j]);
+                    if (j === 0) p.pinned = true;
+                    particles.push(p);
+                    strandParticles.push(p);
+                    if (j > 0) {
+                        constraints.push(new Constraint(strandParticles[j-1], p, charSpacingY));
+                    }
+                }
+
+                strands.push({ particles: strandParticles, xBase: strandX });
+            });
+
+            metricNodes.textContent = particles.length;
+            if (audioCtx) setupChimeVoices();
+        }
+
+        function updatePhysics() {
+            if (mouse.down && mouse.prevX !== -1000) {
+                mouse.velX = mouse.x - mouse.prevX;
+                mouse.velY = mouse.y - mouse.prevY;
+            } else {
+                mouse.velX *= 0.9;
+                mouse.velY *= 0.9;
+            }
+            mouse.prevX = mouse.x;
+            mouse.prevY = mouse.y;
+
+            particles.forEach(p => {
+                if (p.pinned) return;
+                let vx = (p.x - p.oldX) * state.drag;
+                let vy = (p.y - p.oldY) * state.drag;
+                p.oldX = p.x;
+                p.oldY = p.y;
+                p.x += vx;
+                p.y += vy + state.gravity;
+
+                const dx = p.x - mouse.x;
+                const dy = p.y - mouse.y;
+                const dist = Math.hypot(dx, dy);
+
+                if (dist < mouse.radius) {
+                    const force = (mouse.radius - dist) / mouse.radius;
+                    const angle = Math.atan2(dy, dx);
+                    p.x += Math.cos(angle) * force * state.windStrength;
+                    p.y += Math.sin(angle) * force * state.windStrength;
+                    if (mouse.down) {
+                        p.x += mouse.velX * force * 0.4;
+                        p.y += mouse.velY * force * 0.4;
+                    }
+                }
+
+                if (p.x < 10) { p.x = 10; p.oldX = p.x + Math.abs(p.x - p.oldX) * 0.8; }
+                if (p.x > physicsCanvas.width - 10) { p.x = physicsCanvas.width - 10; p.oldX = p.x - Math.abs(p.x - p.oldX) * 0.8; }
+                if (p.y > physicsCanvas.height - 15) { p.y = physicsCanvas.height - 15; p.oldY = p.y - Math.abs(p.y - p.oldY) * 0.8; }
+            });
+
+            for (let iter = 0; iter < 4; iter++) {
+                constraints.forEach(c => {
+                    const dx = c.p2.x - c.p1.x;
+                    const dy = c.p2.y - c.p1.y;
+                    const dist = Math.hypot(dx, dy);
+                    if (dist === 0) return;
+                    const diff = (c.len - dist) / dist;
+                    const ox = dx * diff * state.tension * 0.5;
+                    const oy = dy * diff * state.tension * 0.5;
+                    if (!c.p1.pinned) { c.p1.x -= ox; c.p1.y -= oy; }
+                    if (!c.p2.pinned) { c.p2.x += ox; c.p2.y += oy; }
+                });
+            }
+        }
+
+        // ─────────────────────────────────────────────────────
+        //  CULTURAL PATTERN RENDERER
+        // ─────────────────────────────────────────────────────
+        function drawCulturalPattern() {
+            const w = patternCanvas.width;
+            const h = patternCanvas.height;
+            patCtx.clearRect(0, 0, w, h);
+            const theme = CULTURAL_THEMES[currentTheme];
+
+            if (currentTheme === 'indonesian') {
+                drawBatikPattern(w, h, theme);
+            } else if (currentTheme === 'chinese') {
+                drawCalligraphyPattern(w, h, theme);
+            } else if (currentTheme === 'indian') {
+                drawMandalaPattern(w, h, theme);
+            } else if (currentTheme === 'mexican') {
+                drawAztecPattern(w, h, theme);
+            }
+        }
+
+        function drawBatikPattern(w, h, theme) {
+            patCtx.lineWidth = 1.5;
+
+            // Kawung pattern (overlapping circles)
+            const spacing = 50;
+            const r = 18;
+            patCtx.strokeStyle = theme.patternColor;
+
+            for (let x = spacing / 2; x < w; x += spacing) {
+                for (let y = spacing / 2; y < h; y += spacing) {
+                    // Four petals
+                    const offsets = [[-r/2, 0], [r/2, 0], [0, -r/2], [0, r/2]];
+                    offsets.forEach(([ox, oy]) => {
+                        patCtx.beginPath();
+                        patCtx.ellipse(x + ox, y + oy, r * 0.4, r * 0.6, Math.atan2(oy, ox), 0, Math.PI * 2);
+                        patCtx.stroke();
+                    });
+
+                    // Center dot
+                    patCtx.beginPath();
+                    patCtx.arc(x, y, 2.5, 0, Math.PI * 2);
+                    patCtx.fillStyle = theme.patternAccent;
+                    patCtx.fill();
+                }
+            }
+
+            // Parang diagonal waves
+            patCtx.strokeStyle = theme.patternAccent;
+            patCtx.lineWidth = 1;
+            for (let offset = -h; offset < w + h; offset += 80) {
+                patCtx.beginPath();
+                for (let t = 0; t < Math.max(w, h) * 1.5; t += 2) {
+                    const x = offset + t;
+                    const y = t + Math.sin(t * 0.08) * 15;
+                    if (t === 0) patCtx.moveTo(x, y);
+                    else patCtx.lineTo(x, y);
+                }
+                patCtx.stroke();
+            }
+        }
+
+        function drawCalligraphyPattern(w, h, theme) {
+            // Cloud scroll motifs
+            patCtx.strokeStyle = theme.patternColor;
+            patCtx.lineWidth = 1.5;
+
+            for (let y = 60; y < h; y += 120) {
+                for (let x = 40; x < w; x += 140) {
+                    drawCloudScroll(x, y, 30 + Math.random() * 15);
+                }
+            }
+
+            // Lattice window pattern
+            patCtx.strokeStyle = theme.patternAccent;
+            patCtx.lineWidth = 0.8;
+            const lx = w * 0.7, ly = h * 0.3;
+            const ls = 100;
+
+            for (let dx = -ls; dx <= ls; dx += 20) {
+                patCtx.beginPath();
+                patCtx.moveTo(lx + dx, ly - ls);
+                patCtx.lineTo(lx + dx, ly + ls);
+                patCtx.stroke();
+            }
+            for (let dy = -ls; dy <= ls; dy += 20) {
+                patCtx.beginPath();
+                patCtx.moveTo(lx - ls, ly + dy);
+                patCtx.lineTo(lx + ls, ly + dy);
+                patCtx.stroke();
+            }
+
+            // Diagonal lattice overlay
+            for (let dx = -ls * 2; dx <= ls * 2; dx += 28) {
+                patCtx.beginPath();
+                patCtx.moveTo(lx + dx, ly - ls);
+                patCtx.lineTo(lx + dx + ls, ly + ls);
+                patCtx.stroke();
+                patCtx.beginPath();
+                patCtx.moveTo(lx + dx, ly - ls);
+                patCtx.lineTo(lx + dx - ls, ly + ls);
+                patCtx.stroke();
+            }
+        }
+
+        function drawCloudScroll(cx, cy, size) {
+            patCtx.beginPath();
+            // Spiral cloud
+            for (let a = 0; a < Math.PI * 3; a += 0.1) {
+                const r = size * (1 - a / (Math.PI * 4));
+                const x = cx + Math.cos(a) * r;
+                const y = cy + Math.sin(a) * r * 0.6;
+                if (a === 0) patCtx.moveTo(x, y);
+                else patCtx.lineTo(x, y);
+            }
+            patCtx.stroke();
+
+            // Small cloud puffs
+            for (let i = 0; i < 3; i++) {
+                const angle = (i / 3) * Math.PI;
+                patCtx.beginPath();
+                patCtx.arc(
+                    cx + Math.cos(angle) * size * 0.7,
+                    cy + Math.sin(angle) * size * 0.4,
+                    size * 0.25, 0, Math.PI * 2
+                );
+                patCtx.stroke();
+            }
+        }
+
+        function drawMandalaPattern(w, h, theme) {
+            const cx = w * 0.5;
+            const cy = h * 0.45;
+
+            // Concentric mandala rings
+            patCtx.strokeStyle = theme.patternColor;
+            patCtx.lineWidth = 1;
+
+            const rings = [40, 70, 105, 145, 190, 240];
+            rings.forEach((r, ri) => {
+                patCtx.beginPath();
+                patCtx.arc(cx, cy, r, 0, Math.PI * 2);
+                patCtx.stroke();
+
+                // Petals / dots on each ring
+                const numPetals = 8 + ri * 4;
+                for (let i = 0; i < numPetals; i++) {
+                    const angle = (i / numPetals) * Math.PI * 2;
+                    const px = cx + Math.cos(angle) * r;
+                    const py = cy + Math.sin(angle) * r;
+
+                    if (ri % 2 === 0) {
+                        // Petal shapes
+                        patCtx.beginPath();
+                        patCtx.ellipse(px, py, 6, 12, angle, 0, Math.PI * 2);
+                        patCtx.stroke();
+                    } else {
+                        // Dots
+                        patCtx.beginPath();
+                        patCtx.arc(px, py, 2.5, 0, Math.PI * 2);
+                        patCtx.fillStyle = theme.patternAccent;
+                        patCtx.fill();
+                    }
+                }
+            });
+
+            // Rangoli corner dots
+            patCtx.fillStyle = theme.patternAccent;
+            const dotSpacing = 40;
+            for (let x = 20; x < w; x += dotSpacing) {
+                for (let y = 20; y < h; y += dotSpacing) {
+                    const distToCenter = Math.hypot(x - cx, y - cy);
+                    if (distToCenter > 260) {
+                        patCtx.beginPath();
+                        patCtx.arc(x, y, 1.5, 0, Math.PI * 2);
+                        patCtx.fill();
+                    }
+                }
+            }
+
+            // Paisley accent motifs in corners
+            patCtx.strokeStyle = theme.patternColor;
+            patCtx.lineWidth = 1;
+            [
+                [80, 80, 0.3],
+                [w - 80, 80, -0.3],
+                [80, h - 80, -0.3],
+                [w - 80, h - 80, 0.3]
+            ].forEach(([px, py, dir]) => {
+                drawPaisley(px, py, 30, dir);
+            });
+        }
+
+        function drawPaisley(cx, cy, size, dir) {
+            patCtx.beginPath();
+            for (let t = 0; t < Math.PI * 1.8; t += 0.08) {
+                const r = size * (1 - t / (Math.PI * 2.5));
+                const x = cx + Math.cos(t * dir * 3) * r;
+                const y = cy + Math.sin(t) * r;
+                if (t === 0) patCtx.moveTo(x, y);
+                else patCtx.lineTo(x, y);
+            }
+            patCtx.stroke();
+        }
+
+        function drawAztecPattern(w, h, theme) {
+            const cx = w * 0.5;
+            const cy = h * 0.45;
+
+            // Aztec sun stone — concentric rings with angular segments
+            patCtx.strokeStyle = theme.patternColor;
+            patCtx.lineWidth = 1.5;
+
+            const rings = [35, 65, 100, 140, 185, 235];
+            rings.forEach((r, ri) => {
+                // Stepped ring (not smooth circle — angular segments)
+                const segments = 8 + ri * 4;
+                patCtx.beginPath();
+                for (let i = 0; i <= segments; i++) {
+                    const angle = (i / segments) * Math.PI * 2;
+                    const px = cx + Math.cos(angle) * r;
+                    const py = cy + Math.sin(angle) * r;
+                    if (i === 0) patCtx.moveTo(px, py);
+                    else patCtx.lineTo(px, py);
+                }
+                patCtx.stroke();
+
+                // Radial spokes from ring
+                if (ri % 2 === 0) {
+                    for (let i = 0; i < segments; i++) {
+                        const angle = (i / segments) * Math.PI * 2;
+                        const innerR = ri > 0 ? rings[ri - 1] : 10;
+                        patCtx.beginPath();
+                        patCtx.moveTo(cx + Math.cos(angle) * innerR, cy + Math.sin(angle) * innerR);
+                        patCtx.lineTo(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
+                        patCtx.stroke();
+                    }
+                }
+
+                // Triangular teeth on odd rings
+                if (ri % 2 === 1) {
+                    const nextR = ri < rings.length - 1 ? rings[ri + 1] : r + 30;
+                    for (let i = 0; i < segments; i++) {
+                        const a1 = (i / segments) * Math.PI * 2;
+                        const a2 = ((i + 0.5) / segments) * Math.PI * 2;
+                        const a3 = ((i + 1) / segments) * Math.PI * 2;
+                        patCtx.beginPath();
+                        patCtx.moveTo(cx + Math.cos(a1) * r, cy + Math.sin(a1) * r);
+                        patCtx.lineTo(cx + Math.cos(a2) * (r + (nextR - r) * 0.5), cy + Math.sin(a2) * (r + (nextR - r) * 0.5));
+                        patCtx.lineTo(cx + Math.cos(a3) * r, cy + Math.sin(a3) * r);
+                        patCtx.stroke();
+                    }
+                }
+            });
+
+            // Center face (simple glyph)
+            patCtx.fillStyle = theme.patternAccent;
+            patCtx.beginPath();
+            patCtx.arc(cx, cy, 12, 0, Math.PI * 2);
+            patCtx.fill();
+            patCtx.beginPath();
+            patCtx.arc(cx, cy, 8, 0, Math.PI * 2);
+            patCtx.fillStyle = `rgba(245, 239, 224, 0.6)`;
+            patCtx.fill();
+
+            // Step-fret border motifs (Grecas / Xicalcoliuhqui)
+            patCtx.strokeStyle = theme.patternAccent;
+            patCtx.lineWidth = 1;
+            // Top border
+            drawGreca(20, 20, w - 40, true);
+            // Bottom border
+            drawGreca(20, h - 30, w - 40, false);
+
+            // Corner serpent spirals
+            patCtx.strokeStyle = theme.patternColor;
+            [[50, 50], [w-50, 50], [50, h-50], [w-50, h-50]].forEach(([sx, sy]) => {
+                patCtx.beginPath();
+                for (let t = 0; t < Math.PI * 4; t += 0.1) {
+                    const sr = 20 * (1 - t / (Math.PI * 6));
+                    if (sr < 2) break;
+                    const px = sx + Math.cos(t) * sr;
+                    const py = sy + Math.sin(t) * sr;
+                    if (t === 0) patCtx.moveTo(px, py);
+                    else patCtx.lineTo(px, py);
+                }
+                patCtx.stroke();
+            });
+        }
+
+        // Step-fret (Greca / Xicalcoliuhqui) pattern
+        function drawGreca(startX, startY, width, top) {
+            const step = 10;
+            const dir = top ? 1 : -1;
+            let x = startX;
+            patCtx.beginPath();
+            patCtx.moveTo(x, startY);
+            while (x < startX + width) {
+                patCtx.lineTo(x + step, startY);
+                patCtx.lineTo(x + step, startY + step * dir);
+                patCtx.lineTo(x + step * 2, startY + step * dir);
+                patCtx.lineTo(x + step * 2, startY);
+                x += step * 2;
+            }
+            patCtx.stroke();
+        }
+
+        // ─────────────────────────────────────────────────────
+        //  RENDERING
+        // ─────────────────────────────────────────────────────
+        function renderScene() {
+            const theme = CULTURAL_THEMES[currentTheme];
+            const [bgR, bgG, bgB] = theme.canvasBg;
+
+            // Clear with warm parchment trail
+            ctx.fillStyle = `rgba(${bgR}, ${bgG}, ${bgB}, 0.3)`;
+            ctx.fillRect(0, 0, physicsCanvas.width, physicsCanvas.height);
+
+            // Faint grid
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.015)';
+            ctx.lineWidth = 0.5;
+            for (let x = 0; x < physicsCanvas.width; x += 45) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, physicsCanvas.height);
+                ctx.stroke();
+            }
+
+            // Constraint lines (thread)
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.04)';
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            constraints.forEach(c => {
+                ctx.moveTo(c.p1.x, c.p1.y);
+                ctx.lineTo(c.p2.x, c.p2.y);
+            });
+            ctx.stroke();
+
+            // Determine font for current theme
+            const culturalFont = theme.font;
+            const isCultural = state.textSource === 'cultural';
+            ctx.font = isCultural ? `10px ${culturalFont}` : '9px "Fira Code", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const [bR, bG, bB] = theme.stringBaseColor;
+            const [gR, gG, gB] = theme.stringGlowColor;
+
+            strands.forEach((strand, index) => {
+                let motionValue = 0;
+                strand.particles.forEach(p => {
+                    motionValue += Math.hypot(p.x - p.oldX, p.y - p.oldY);
+                });
+                motionValue = Math.min(motionValue / strand.particles.length * 0.5, 1);
+
+                strand.particles.forEach(p => {
+                    p.brightness = p.brightness * 0.88 + motionValue * 0.12;
+                    const glow = Math.max(0.12, p.brightness);
+
+                    if (p.pinned) {
+                        // Pin header — accent color
+                        ctx.fillStyle = `rgba(${bR}, ${bG}, ${bB}, 0.5)`;
+
+                        // Small decorative dot above pin
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y - 10, 3, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(${gR}, ${gG}, ${gB}, 0.4)`;
+                        ctx.fill();
+
+                        ctx.fillStyle = `rgba(${bR}, ${bG}, ${bB}, 0.6)`;
+                    } else {
+                        // Blend from base to glow color based on motion
+                        const r = Math.floor(bR + glow * (gR - bR) * 0.5);
+                        const g = Math.floor(bG + glow * (gG - bG) * 0.5);
+                        const b = Math.floor(bB + glow * (gB - bB) * 0.5);
+                        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${0.4 + glow * 0.6})`;
+
+                        // Glow halo for active characters
+                        if (glow > 0.3) {
+                            ctx.shadowColor = `rgba(${gR}, ${gG}, ${gB}, ${glow * 0.4})`;
+                            ctx.shadowBlur = glow * 12;
+                        }
+                    }
+
+                    ctx.fillText(p.char, p.x, p.y);
+                    ctx.shadowBlur = 0;
+                });
+            });
+
+            // Cursor aura
+            if (mouse.x > -1000) {
+                const gradient = ctx.createRadialGradient(mouse.x, mouse.y, 8, mouse.x, mouse.y, mouse.radius);
+                const intensity = mouse.down ? 0.08 : 0.04;
+                const auraBase = theme.auraColor.replace('##', String(intensity));
+                gradient.addColorStop(0, auraBase);
+                gradient.addColorStop(1, theme.auraColor.replace('##', '0'));
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(mouse.x, mouse.y, mouse.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // ─────────────────────────────────────────────────────
+        //  MAIN LOOP
+        // ─────────────────────────────────────────────────────
+        let lastTime = performance.now();
+        let frameCount = 0;
+
+        function loop() {
+            const now = performance.now();
+            frameCount++;
+            if (now > lastTime + 1000) {
+                metricFps.textContent = Math.round((frameCount * 1000) / (now - lastTime));
+                frameCount = 0;
+                lastTime = now;
+            }
+
+            updatePhysics();
+            updateAudioDynamics();
+            renderScene();
+            requestAnimationFrame(loop);
+        }
+
+        // ─────────────────────────────────────────────────────
+        //  RESIZE
+        // ─────────────────────────────────────────────────────
+        function resizeCanvas() {
+            const container = physicsCanvas.parentElement;
+            physicsCanvas.width = container.clientWidth;
+            physicsCanvas.height = container.clientHeight;
+            patternCanvas.width = container.clientWidth;
+            patternCanvas.height = container.clientHeight;
+            buildCodeCurtain();
+            drawCulturalPattern();
+        }
+
+        // ─────────────────────────────────────────────────────
+        //  THEME SWITCHING
+        // ─────────────────────────────────────────────────────
+        function switchTheme(themeName) {
+            if (themeName === currentTheme) return;
+            currentTheme = themeName;
+
+            // Update data-theme attribute for CSS
+            document.body.setAttribute('data-theme', themeName);
+
+            // Update tabs
+            document.querySelectorAll('.theme-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.theme === themeName);
+            });
+
+            // Update quote
+            const theme = CULTURAL_THEMES[themeName];
+            document.getElementById('quote-script').textContent = theme.quoteScript;
+            document.getElementById('quote-text').textContent = theme.quoteText;
+
+            // Rebuild curtain if on cultural text
+            if (state.textSource === 'cultural') {
+                buildCodeCurtain();
+            }
+
+            // Redraw cultural pattern
+            drawCulturalPattern();
+
+            // Update audio if active
+            if (audioCtx) {
+                setupDrone();
+                setupChimeVoices();
+            }
+        }
+
+        // ─────────────────────────────────────────────────────
+        //  EVENT BINDINGS
+        // ─────────────────────────────────────────────────────
+
+        // Theme selector
+        document.querySelectorAll('.theme-tab').forEach(tab => {
+            tab.addEventListener('click', () => switchTheme(tab.dataset.theme));
+        });
+
+        // Audio init
+        btnAudioInit.addEventListener('click', () => {
+            initAudio();
+            if (audioCtx) {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                    btnAudioInit.classList.add('active');
+                    audioIcon.className = "fa-solid fa-volume-high";
+                    audioStatusText.textContent = "Audio Active";
+                } else if (audioCtx.state === 'running') {
+                    audioCtx.suspend();
+                    btnAudioInit.classList.remove('active');
+                    audioIcon.className = "fa-solid fa-volume-xmark";
+                    audioStatusText.textContent = "Audio Muted";
+                }
+            }
+        });
+
+        // Slider bindings
+        const sliderBindings = [
+            ['slide-gravity', 'val-gravity', v => { state.gravity = v; return v.toFixed(2); }],
+            ['slide-tension', 'val-tension', v => { state.tension = v; return v.toFixed(2); }],
+            ['slide-drag', 'val-drag', v => { state.drag = v; return v.toFixed(2); }],
+            ['slide-wind', 'val-wind', v => { state.windStrength = v; return String(Math.round(v)); }],
+            ['slide-volume', 'val-volume', v => {
+                state.masterVolume = v;
+                if (masterGainNode && audioCtx) masterGainNode.gain.setValueAtTime(v, audioCtx.currentTime);
+                return `${Math.round(v * 100)}%`;
+            }],
+            ['slide-cutoff', 'val-cutoff', v => {
+                state.cutoff = v;
+                if (steamFilter && audioCtx) steamFilter.frequency.setValueAtTime(v, audioCtx.currentTime);
+                return `${Math.round(v)} Hz`;
+            }],
+            ['slide-fmdepth', 'val-fmdepth', v => {
+                state.fmDepth = v;
+                chimingVoices.forEach(voice => {
+                    if (voice.modGain) voice.modGain.gain.setValueAtTime(v, audioCtx.currentTime);
+                });
+                return String(Math.round(v));
+            }],
+            ['slide-reverb', 'val-reverb', v => {
+                state.reverbMix = v;
+                if (dryGain && wetGain && audioCtx) {
+                    dryGain.gain.setValueAtTime(1 - v, audioCtx.currentTime);
+                    wetGain.gain.setValueAtTime(v, audioCtx.currentTime);
+                }
+                return `${Math.round(v * 100)}%`;
+            }]
+        ];
+
+        sliderBindings.forEach(([sliderId, valId, handler]) => {
+            const slider = document.getElementById(sliderId);
+            const valEl = document.getElementById(valId);
+            if (slider && valEl) {
+                slider.addEventListener('input', e => {
+                    valEl.textContent = handler(parseFloat(e.target.value));
+                });
+            }
+        });
+
+        // Text source select
+        const selectTextSource = document.getElementById('select-text-source');
+        const customTextWrap = document.getElementById('custom-text-wrap');
+        const customTextInput = document.getElementById('custom-text-input');
+        const btnApplyCustom = document.getElementById('btn-apply-custom');
+
+        selectTextSource.addEventListener('change', e => {
+            state.textSource = e.target.value;
+            customTextWrap.style.display = e.target.value === 'custom' ? 'block' : 'none';
+            if (e.target.value !== 'custom') buildCodeCurtain();
+        });
+
+        btnApplyCustom.addEventListener('click', () => {
+            state.customText = customTextInput.value;
+            buildCodeCurtain();
+        });
+
+        // Reset & Stabilize
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            particles.forEach(p => {
+                if (!p.pinned) { p.x = p.oldX; p.y = p.oldY; }
+            });
+            mouse.x = -1000; mouse.y = -1000;
+        });
+
+        document.getElementById('btn-stabilize').addEventListener('click', () => {
+            buildCodeCurtain();
+        });
+
+        // Mouse/Touch handlers
+        function setMousePos(e) {
+            const rect = physicsCanvas.getBoundingClientRect();
+            mouse.x = (e.clientX - rect.left) * (physicsCanvas.width / rect.width);
+            mouse.y = (e.clientY - rect.top) * (physicsCanvas.height / rect.height);
+        }
+
+        physicsCanvas.addEventListener('mousedown', e => {
+            mouse.down = true;
+            initAudio();
+            if (audioCtx) audioCtx.resume();
+            setMousePos(e);
+        });
+        physicsCanvas.addEventListener('mousemove', e => setMousePos(e));
+        window.addEventListener('mouseup', () => { mouse.down = false; });
+        physicsCanvas.addEventListener('mouseleave', () => {
+            mouse.x = -1000; mouse.y = -1000; mouse.down = false;
+        });
+
+        physicsCanvas.addEventListener('touchstart', e => {
+            if (e.touches.length > 0) {
+                mouse.down = true;
+                initAudio();
+                if (audioCtx) audioCtx.resume();
+                setMousePos(e.touches[0]);
+            }
+        }, { passive: true });
+        physicsCanvas.addEventListener('touchmove', e => {
+            if (e.touches.length > 0) setMousePos(e.touches[0]);
+        }, { passive: true });
+        physicsCanvas.addEventListener('touchend', () => {
+            mouse.down = false; mouse.x = -1000; mouse.y = -1000;
+        });
+
+        // ─────────────────────────────────────────────────────
+        //  INIT
+        // ─────────────────────────────────────────────────────
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            loop();
+        });
+
+    })();
+    </script>
+</body>
+</html>
