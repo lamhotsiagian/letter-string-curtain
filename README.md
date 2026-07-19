@@ -3,7 +3,8 @@ Author: https://aiengineeringinsider.substack.com/subscribe
 
 An interactive, physics-based canvas code curtain experience blending Verlet physics strings, modern glassmorphism design, and cultural audio textures (Indonesia, China, India, and México) using the Web Audio API.
 
----
+<img width="1250" height="780" alt="image" src="https://github.com/user-attachments/assets/24345325-319d-43be-87f3-3d2628b041f6" />
+
 
 ## 🎨 Features
 
